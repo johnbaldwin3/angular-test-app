@@ -3,12 +3,15 @@ import { Injectable } from '@angular/core';
 import { Recipe } from './recipe.model';
 import { Ingredient } from '../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { Subject } from 'rxjs';
 
 
 @Injectable()
 export class RecipeService {
     // manage recipes 
-    
+    recipesChanged = new Subject<Recipe[]>();
+
     private recipes: Recipe[] = [
         new Recipe(
             'Lasagne: The Good Stuff', 
@@ -48,6 +51,20 @@ export class RecipeService {
     addIngredientsToShoppingList(ingredients: Ingredient[]) {
         //TODO: prevent/group duplicate items on ingredients
         this.slService.addIngredients(ingredients);
+    }
+
+    addRecipe(recipe: Recipe) {
+        this.recipes.push(recipe);
+        this.recipesChanged.next(this.recipes.slice());
+    }
+
+    updateRecipe(index: number, newRecipe: Recipe) {
+        this.recipes[index] = newRecipe;
+        this.recipesChanged.next(this.recipes.slice());
+    }
+    deleteRecipe(index: number) {
+        this.recipes.splice(index, 1);
+        this.recipesChanged.next(this.recipes.slice());
     }
 
 }
